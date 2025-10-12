@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Task 9</title>
+<style>
+body {
+    background: white;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+.container {
+    border: 4px solid #68a9cf;
+    width: 330px;
+    margin: 40px;
+    padding: 20px 10px 15px 10px;
+    background: #fafafa;
+}
+.display {
+    display: flex;
+    justify-content: flex-end; 
+    align-items: center; 
+    width: 310px;
+    height: 48px;
+    font-size: 32px;
+    margin-bottom: 15px;
+    margin-left: 10px;
+    padding-right: 12px;
+    padding-left: 10px;
+    border: 1px solid #bbbbbb;
+    background: white;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow-x: auto;
+}
+.display .old {
+    color: #bbb;
+}
+.display .current {
+    color: #333;
+}
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(5, 58px);
+    grid-template-rows: repeat(4, 57px);
+    grid-gap: 5px;
+    justify-content: center;
+}
+.button {
+    height: 57px;
+    font-size: 24px;
+    border: 1px solid #bbbbbb;
+    background: linear-gradient(#f0f0f0, #e0e0e0);
+    cursor: pointer;
+    box-sizing: border-box;
+    outline: none;
+    width: 58px;
+}
+.button.active {
+    border: 2px solid #235aaf;
+}
+.button.equal {
+    grid-row: 3 / span 2;
+    grid-column: 5;
+    height: 119px;
+    width: 58px;
+}
+.button.zero {
+    grid-column: 1 / span 2;
+    width: 121px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="display" id="display"></div>
+    <div class="buttons" id="buttons">
+        <button class="button" onclick="press('7', this)">7</button>
+        <button class="button" onclick="press('8', this)">8</button>
+        <button class="button" onclick="press('9', this)">9</button>
+        <button class="button" onclick="press('/', this)">/</button>
+        <button class="button" onclick="clearDisplay(this)">C</button>
+        <button class="button" onclick="press('4', this)">4</button>
+        <button class="button" onclick="press('5', this)">5</button>
+        <button class="button" onclick="press('6', this)">6</button>
+        <button class="button" onclick="press('*', this)">*</button>
+        <button class="button" onclick="backspace(this)">&lt;-</button>
+        <button class="button" onclick="press('1', this)">1</button>
+        <button class="button" onclick="press('2', this)">2</button>
+        <button class="button" onclick="press('3', this)">3</button>
+        <button class="button" onclick="press('-', this)">-</button>
+        <button class="button equal" onclick="calculate(this)">=</button>
+        <button class="button zero" onclick="press('0', this)">0</button>
+        <button class="button" onclick="press('.', this)">.</button>
+        <button class="button" onclick="press('+', this)">+</button>
+    </div>
+</div>
+<script>
+let display = document.getElementById('display');
+let value = '';
+let lastActive = null;
+let operatorIndex = -1;
+const operators = ['+', '-', '/', '*'];
+
+function press(key, btn) {
+    if (display.textContent === 'Error' || /^[0-9.]+$/.test(value) && operators.includes(key)) {
+        operatorIndex = value.length;
+    }
+    value += key;
+    if (operators.includes(key)) {
+        operatorIndex = value.length - 1;
+    }
+    updateDisplay();
+    updateActive(btn);
+}
+function calculate(btn) {
+    try {
+        display.textContent = eval(value);
+        value = eval(value).toString();
+    } catch {
+        display.textContent = 'Error';
+        value = '';
+    }
+    operatorIndex = -1;
+    updateActive(btn);
+}
+function clearDisplay(btn) {
+    value = '';
+    operatorIndex = -1;
+    display.textContent = '';
+    updateActive(btn);
+}
+function backspace(btn) {
+    if (value.length > 0) value = value.slice(0, -1);
+    if (operatorIndex >= value.length) operatorIndex = -1;
+    updateDisplay();
+    updateActive(btn);
+}
+function updateDisplay() {
+    if (operatorIndex !== -1) {
+        let part1 = value.slice(0, operatorIndex + 1);
+        let part2 = value.slice(operatorIndex + 1);
+        display.innerHTML = '<span class="old">' + escapeHtml(part1) + '</span>'
+            + '<span class="current">' + escapeHtml(part2) + '</span>';
+    } else {
+        display.innerHTML = '<span class="current">' + escapeHtml(value) + '</span>';
+    }
+}
+function updateActive(btn) {
+    if (lastActive) lastActive.classList.remove("active");
+    btn.classList.add("active");
+    lastActive = btn;
+}
+function escapeHtml(text) {
+    return text.replace(/[&<>"']/g, function (m) {
+        return ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;',
+            '"': '&quot;', "'": '&#39;'
+        })[m];
+    });
+}
+</script>
+</body>
+</html>
