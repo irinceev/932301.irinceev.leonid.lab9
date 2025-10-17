@@ -103,12 +103,18 @@ let operatorIndex = -1;
 const operators = ['+', '-', '/', '*'];
 
 function press(key, btn) {
-    if (display.textContent === 'Error' || /^[0-9.]+$/.test(value) && operators.includes(key)) {
-        operatorIndex = value.length;
-    }
-    value += key;
-    if (operators.includes(key)) {
+    if (
+        value.length > 0 &&
+        operators.includes(value[value.length - 1]) &&
+        operators.includes(key)
+    ) {
+        value = value.slice(0, -1) + key;
         operatorIndex = value.length - 1;
+    } else {
+        value += key;
+        if (operators.includes(key)) {
+            operatorIndex = value.length - 1;
+        }
     }
     updateDisplay();
     updateActive(btn);
